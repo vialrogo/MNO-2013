@@ -1,2 +1,2 @@
-Metetodos Numericos em Otimização
+Métetodos Numéricos em Otimização
 ================================

@@ -78,7 +78,7 @@ subroutine linearSearch(n,xini,xnew)
         
         ! Output
         iter = iter + 1
-        write(*,"('iter: ' I6 '  f: ',E14.6,'  gnorm: ',E14.6)") iter, f ,gnorm
+        write(*,"('iter: ' I8 '  f: ',E14.6,'  gnorm: ',E14.6)") iter, f ,gnorm
 
     end do
    
