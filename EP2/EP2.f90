@@ -4,81 +4,113 @@ program main
 
     implicit none
 
-    ! Parameters
-    integer, parameter :: nmax=1000
-
     ! Variables
-    integer :: n,m,iter,i
-    real*8  :: ftf
-    real*8  :: x(nmax), f(nmax), g(nmax), fj(nmax,nmax)
-
-    ! Call the function
-    call getfun (x,n,f,m,ftf,fj,nmax,g,-1)
+    integer, parameter :: n=2
+    real*8  :: xsol(n), xini(n)
 
     ! Set initial point
-    write(*,"('Insert the initial point (' I2.2 ')')"), n 
-
-    do i=1,n
-        read (*,*) x(i)
-    end do
+    xini(1) = 1.2d0
+    xini(2) = 1.2d0
 
     ! Call the function
-    call linearSearch(n,m,x,iter)
-    write(*,"('The solutin is:' F10.6  F10.6 ' in ' I6, ' iterations')"), x(1), x(2), iter 
+    call linearSearch(n,xini,xsol)
+
+    ! Print solution
+    print *, 'The solutin is: ', xsol(1), xsol(2) 
 
 end program main
     
 !*****************************************************************************
 !*****************************************************************************
-subroutine linearSearch(n,m,x,iter)
+subroutine linearSearch(n,xini,xnew)
  
+    ! Input arguments
+    integer, intent(in) :: n
+    real*8, intent(in) :: xini(n)
+
+    ! Output arguments
+    real*8,  intent(out) :: xnew(n)
+    
     ! Parameters
+    integer, parameter :: nmax  = 1000
     real*8,  parameter :: gamma = 1.0d-04
     real*8,  parameter :: epsg  = 1.0d-010
-    
-    ! Arguments
-    integer, intent(in) :: n,m
-    integer, intent(out) :: iter
-    real*8, intent(inout) :: x(n)
 
     ! Variables
-    real*8  :: alpha,gnorm,gtd, ftf, ftfnew
-    real*8  :: f(n), g(n), fj(m,n), d(n), xnew(n)
+    integer :: iter
+    real*8  :: alpha,f,fnew,gnorm,gtd
+    real*8  :: g(n),d(n),x(n)
 
-    ! Call the function
-    call getfun(x,n,f,m,ftf,fj,m,g,-1)
-    call getfun(x,n,f,m,ftf,fj,m,g,1111)
+    ! Eval function
+    x = xini
+    call evalf(n,x,f)
+    call evalg(n,x,g)
 
+    ! Calculate gradient norm
     gnorm = maxval(abs(g))
     iter = 0
 
     do while ( gnorm >= epsg )
 
         ! Calculate a new direction
-        d = -g
+        d = -g 
 
         ! Calculate a new point
         alpha = 1.0d0
         xnew = x + alpha * d
-        gtd = dot_product(g,d)
-        call getfun (xnew,n,f,m,ftfnew,fj,m,g,1111)
+        call evalf(n,xnew,fnew)
 
         ! Confirm if it's a usefull point
-        do while ( ftfnew > (ftf + alpha * gamma * gtd ) )
+        gtd = dot_product(g,d)
+        do while ( fnew > (f + alpha * gamma * gtd ) )
             
             alpha = 0.5d0 * alpha
             xnew = x + alpha * d
-            call getfun (xnew,n,f,m,ftfnew,fj,m,g,1111)
+            call evalf(n,xnew,fnew)
         
         end do
 
         ! Update the point
-        ftf = ftfnew
+        f = fnew
         x = xnew
+        call evalg(n,x,g)
         gnorm = maxval(abs(g))
+        
+        ! Output
         iter = iter + 1
+        write(*,"('iter: ' I8 '  f: ',E14.6,'  gnorm: ',E14.6)") iter, f ,gnorm
 
     end do
    
 end subroutine linearSearch
 
+!*****************************************************************************
+!*****************************************************************************
+subroutine evalf(n,x,f)
+
+    ! Input arguments
+    integer, intent(in) :: n
+    real*8, intent(in) :: x(n)
+    
+    ! Output arguments
+    real*8, intent(out) :: f
+
+    f = 100.0d0 * ( x(2) - x(1) ** 2 ) ** 2 + ( 1.0d0 - x(1) ) ** 2
+
+end subroutine evalf
+
+!*****************************************************************************
+!*****************************************************************************
+subroutine evalg(n,x,g)
+
+    ! Input arguments
+    integer, intent(in) :: n
+    real*8,  intent(in) :: x(n)
+
+    ! Output arguments
+    real*8,  intent(out) :: g(n)
+
+    g(1) = - 400.0d0 * ( x(2) - x(1) ** 2 ) * x(1) - 2.0d0 * ( 1.0d0 - x(1) )
+    g(2) =   200.0d0 * ( x(2) - x(1) ** 2 )
+
+end subroutine evalg

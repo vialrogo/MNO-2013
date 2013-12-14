@@ -16,7 +16,7 @@ program main
     call linearSearch(n,xini,xsol)
 
     ! Print solution
-    write(*,*) 'The solutin is: ', xsol(1), xsol(2) 
+    print *, 'The solutin is: ', xsol(1), xsol(2) 
 
 end program main
     

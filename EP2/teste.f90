@@ -4,19 +4,18 @@ program teste
 
   implicit none
 
-  real(kind=8) :: x(2), g(2), f
-  real(kind=8) :: hd(2), hod(1)
+  integer,parameter::  prob = 14
+  integer,parameter::  n = 2
 
-  ! Aqui eu testo com o problema 16 - Beale, n = 2
+  real(kind=8) :: x(n), g(n), f
+  real(kind=8) :: hd(n), hod( (n*n -n)/2 )
 
-  call initpt(2, x, 16, 1.0d0)
+  call initpt(n, x, prob, 1.0d0)
+  call objfcn(n, x, f, prob)
+  call grdfcn(n, x, g, prob)
+  call hesfcn(n, x, hd, hod, prob)
 
   print *, "x = ", x
-
-  call objfcn(2, x, f, 16)
-  call grdfcn(2, x, g, 16)
-  call hesfcn(2, x, hd, hod, 16)
-
   print *, "f = ", f
   print *, "g = ", g
   print *, "H = ", hd, hod
